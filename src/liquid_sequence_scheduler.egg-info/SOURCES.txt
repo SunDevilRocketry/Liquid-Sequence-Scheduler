@@ -1,7 +1,0 @@
-README.md
-pyproject.toml
-src/liquid_sequence_scheduler/parsing.py
-src/liquid_sequence_scheduler.egg-info/PKG-INFO
-src/liquid_sequence_scheduler.egg-info/SOURCES.txt
-src/liquid_sequence_scheduler.egg-info/dependency_links.txt
-src/liquid_sequence_scheduler.egg-info/top_level.txt
