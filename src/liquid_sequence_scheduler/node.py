@@ -80,5 +80,7 @@ class Node:
     Run node
     """
     def run(self):
+        self.mutex.acquire()
         self._send_command()
         self._wait_for_ack()
+        self.mutex.release()
