@@ -1,0 +1,15 @@
+Sequence Start T+ (seconds):,Command:,Sequence Name:
+,,Start Sequenece
+0,sequencing ON,
+,,Step 1
+1.0,sol1 ON,
+1.0,sol2 ON,
+,,Step 2
+3.0,sol1 OFF,
+3.0,sol2 OFF,
+,,Step 3
+4,stepper1 ON,
+5,stepper2 ON,
+,,Step 4
+7,ignite ON,
+10,datalog ON,
