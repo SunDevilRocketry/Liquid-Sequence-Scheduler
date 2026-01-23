@@ -1,23 +1,6 @@
-# List of hardware to be controlled
-engine_hardware = ["sol1", "sol2", "valve1", "valve2", "stepper1", "stepper2"]
-# List of commands to send
-engine_commands = ["ignite", 
-                   "abort", 
-                   "telreq", 
-                   "pfpurge", 
-                   "fillchill", 
-                   "standby", 
-                   "hotfire",
-                   "getstate",
-                   "stophotfire",
-                   "stoppurge",
-                   "loxpurge",
-                   "datalog"]
-
-# List of allowed variants of on or off
-allowed_on_off = ["on", "On", "oN", "ON", "1",
-                  "off", "Off", "OFf", "OfF", "ofF", "oFf", "OFF", "0"]
-
+from classes import Hardware, Command, SequenceLine, SyntaxCheck, SequenceNode
+from presets import engine_hardware, engine_commands, allowed_on_off
+from typing import List
 
 # Syntax error function for parse_CSV() can use to throw syntax errors
 def syntax_error(line_no, message):
@@ -26,73 +9,106 @@ def syntax_error(line_no, message):
 
 # Parse a given CSV file following the sample sheet rules
 # Place each time and command in a list which is appended to the sequence list
-# Returns: sequence_commands: <List>
-def parse_CSV(file):
+def parse_CSV(file: str) -> List[SequenceLine]:
     sequence_commands = []
-    line_no = 0
+    line_no = 2
 
     with open(file, "r") as f:
-        first_line = f.readline() # Consume first line 
+        f.readline() # Consume first line 
+
         for line in f:
             start_char = line[0]
             if start_char != ",":
                 if start_char.isdigit():
                     line = line.split(",")
-                    time = line[0]
-                    time = float(time)
-                    command = line[1].lower()
-                    new_line = [time, command]
+                    time = float(line[0])
+                    parameter, switch = line[1].split(" ")
+                    new_line = SequenceLine(line=line_no, 
+                                 time=time, 
+                                 parameter=parameter.lower(), 
+                                 switch=switch.lower())
                     sequence_commands.append(new_line)
                 else:
                     syntax_error(line_no, "Unexpected Character: Commands start with digits")
+
+            line_no += 1
     
     return sequence_commands
 
 # Perform syntax checking on the parsed data
-# Returns: syntax_pass: <bool>, command_no: <int>, message: <string>
-def syntax_checking(sequence_list):
+def syntax_checking(sequence_list: List[SequenceLine]) -> SyntaxCheck:
     command_no = 1
     prev_time = -1
 
     # Make sure first command given is the initial "0, sequencing ON"
-    first_pair = sequence_list[0]
-    if first_pair[0] != 0:
-        return False, 0, "Sequencing ON command not at time 0"
-    first_command = first_pair[1].split(" ")
-    if first_command[0] != "sequencing":
-        return False, 0, "First command not sequecning"
-    if first_command[1] != "on":
-        return False, 0, "First command prompt not ON"
+    first_line = sequence_list[0]
+    if first_line.time != 0:
+        return SyntaxCheck(False, 0, "Sequencing ON command not at time 0")
+
+    if first_line.parameter != "sequencing":
+        return SyntaxCheck(False, 0, "First command not sequecning")
+    
+    if first_line.switch not in {"on", "1"}:
+        return SyntaxCheck(False, 0, "First command prompt not ON")
+    
     sequence_list = sequence_list[1:]
-
-    for pair in sequence_list:
-        time = pair[0]
-
+    for line in sequence_list:
         # Make sure the time sequence is strictly increasing or equal to
-        if time < prev_time:
-            return False, command_no, "Non-Increasing Time Sequence"
+        if line.time < prev_time:
+            return SyntaxCheck(False, command_no, "Non-Increasing Time Sequence")
         
         # Determine if command is a hardware access or a command
-        command = pair[1].split(" ")
-        hardware_or_command = command[0]
-        on_or_off = command[1]
-
-        if hardware_or_command in engine_hardware:
+        if line.parameter in engine_hardware:
             # Command is to control hardware
-            if on_or_off not in allowed_on_off or on_or_off not in allowed_on_off:
+            if line.switch not in allowed_on_off or line.switch not in allowed_on_off:
                 # ON or OFF prompt not provided
-                return False, command_no, "Hardware Access requires an ON or OFF"
-        elif hardware_or_command in engine_commands:
+                return SyntaxCheck(False, command_no, "Hardware Access requires an ON or OFF")
+        elif line.parameter in engine_commands:
             # Command is to send an engine command
-            if on_or_off != "on":
+            if line.switch not in {"on", "1"}:
                 # ON prompt not provided
-                return False, command_no, "Command send requires an ON"
+                return SyntaxCheck(False, command_no, "Command send requires an ON")
         else:
             # Command does not exist
-            return False, command_no, f"Hardware or Command '{hardware_or_command}' does not exist"
+            return SyntaxCheck(False, command_no, f"Hardware or Command '{line.parameter}' does not exist")
 
         command_no += 1
-        prev_time = time
+        prev_time = line.time
 
     # No syntax problems found
-    return True, 0, ""
+    return SyntaxCheck(True, 0, "")
+
+# Format the parsed list into a better typed list
+def format_sequence(sequence_list: List[SequenceLine]) -> List[SequenceNode]:
+    sequence: List[SequenceNode] = []
+
+    for i, line in enumerate(sequence_list):
+        new_node = SequenceNode(
+            num=i,
+            time=line.time,
+            parameter=Command(name=line.parameter) if line.parameter in engine_commands else Hardware(name=line.parameter),
+            switch=line.switch in {"on", "1"}
+        )
+        sequence.append(new_node)
+
+    return sequence
+
+# Print the sequence dict with formatting 
+def print_sequence(sequence: List[SequenceNode]) -> None:
+    for node in sequence:
+        print(f"{node.time:.2f} | Command: {node.num} | {node.parameter.name} | {node.switch}")
+
+def main():
+    sequence_list = parse_CSV("Liquid Avionics Sequencing Document - Sheet1.csv")
+    syntax_result = syntax_checking(sequence_list)
+    
+    if (not syntax_result.result):
+        print(f"Syntax Error: <{syntax_result.message}> at command number: {syntax_result.line}")
+        exit(-1)
+    else:
+        print("Syntax checking passed")
+        sequence = format_sequence(sequence_list)
+        print_sequence(sequence)
+
+if __name__ == "__main__":
+    main()
