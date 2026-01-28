@@ -4,8 +4,8 @@ from typing import Set
 engine_hardware: Set[str] = {
     "sol1", 
     "sol2", 
-    "valve1", 
-    "valve2", 
+    "ox", 
+    "fuel", 
     "stepper1", 
     "stepper2"}
 
