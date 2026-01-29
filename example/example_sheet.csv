@@ -8,8 +8,8 @@ Sequence Start T+ (seconds):,Command:,Sequence Name:
 3.0,ox OFF,
 3.0,fuel OFF,
 ,,Step 3
-4,stepper1 ON,
-5,stepper2 ON,
+4,oxPress ON,
+5,fuelVent ON,
 ,,Step 4
 7,ignite ON,
 10,datalog ON,
