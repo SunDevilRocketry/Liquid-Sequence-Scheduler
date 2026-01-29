@@ -15,7 +15,7 @@ def main():
 
     serial_sequence = serializing.serialize_sequence(sequence=sequence)
     for node in serial_sequence:
-        print(node.pack_to_bytes())
+        print(node)
 
     # TODO make a connection and send the sequence 
 
