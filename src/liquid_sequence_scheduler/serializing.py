@@ -22,7 +22,30 @@ class SerialNode:
             struct.pack(">B", self.sequence_num)
         ])
 
-        object.__setattr__(self, "crc", zlib.crc32(payload) & 0xFFFF) 
+        object.__setattr__(self, "crc", zlib.crc32(payload) & 0xFFFFFFFF) 
+
+    @classmethod
+    def from_bytes(cls, data: bytes) -> "SerialNode":
+        if len(data) != 9:
+            raise ValueError(f"Expected 9 bytes but got {len(data)}")
+        
+        time = struct.unpack(">e", data[0:2])[0]
+        subcommand_code = struct.unpack(">B", data[2:3])[0]
+        opcode = struct.unpack(">B", data[3:4])[0]
+        sequence_num = struct.unpack(">B", data[4:5])[0]
+        crc = struct.unpack(">I", data[5:9])[0]
+
+        node = cls(
+            time=time,
+            subcommand_code=subcommand_code,
+            opcode=opcode,
+            sequence_num=sequence_num
+        )
+
+        if node.crc != crc:
+            raise ValueError(f"CRC Mismatch: expected {node.crc:#010x} but received {crc:#010x}")
+        
+        return node
 
     def pack_to_bytes(self) -> bytes:
         return b"".join([
