@@ -1,13 +1,16 @@
-from typing import Set
+from typing import Set, Dict
 
-# List of hardware to be controlled
-engine_hardware: Set[str] = {
-    "sol1", 
-    "sol2", 
-    "valve1", 
-    "valve2", 
-    "stepper1", 
-    "stepper2"}
+# Hardware to be controlled and its type
+engine_hardware: Dict[str, str] = {
+    "oxpress": "solenoid",
+    "fuelpress": "solenoid",
+    "oxvent": "solenoid",
+    "fuelvent": "solenoid",
+    "oxvurge": "solenoid",
+    "fuelpurge": "solenoid",
+    "ox": "valve",
+    "fuel": "valve"
+}
 
 # List of commands to send
 engine_commands: Set[str] = {

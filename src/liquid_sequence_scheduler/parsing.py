@@ -1,5 +1,5 @@
-from classes import Hardware, Command, SequenceLine, SyntaxCheck, SequenceNode
-from presets import engine_hardware, engine_commands, allowed_on_off
+from src.liquid_sequence_scheduler.classes import Hardware, Command, SequenceLine, SyntaxCheck, SequenceNode
+from src.liquid_sequence_scheduler.presets import engine_hardware, engine_commands, allowed_on_off
 from typing import List
 
 # Syntax error function for parse_CSV() can use to throw syntax errors
@@ -58,7 +58,7 @@ def syntax_checking(sequence_list: List[SequenceLine]) -> SyntaxCheck:
             return SyntaxCheck(False, command_no, "Non-Increasing Time Sequence")
         
         # Determine if command is a hardware access or a command
-        if line.parameter in engine_hardware:
+        if line.parameter in engine_hardware.keys():
             # Command is to control hardware
             if line.switch not in allowed_on_off or line.switch not in allowed_on_off:
                 # ON or OFF prompt not provided
@@ -97,18 +97,3 @@ def format_sequence(sequence_list: List[SequenceLine]) -> List[SequenceNode]:
 def print_sequence(sequence: List[SequenceNode]) -> None:
     for node in sequence:
         print(f"{node.time:.2f} | Command: {node.num} | {node.parameter.name} | {node.switch}")
-
-def main():
-    sequence_list = parse_CSV("Liquid Avionics Sequencing Document - Sheet1.csv")
-    syntax_result = syntax_checking(sequence_list)
-    
-    if (not syntax_result.result):
-        print(f"Syntax Error: <{syntax_result.message}> at command number: {syntax_result.line}")
-        exit(-1)
-    else:
-        print("Syntax checking passed")
-        sequence = format_sequence(sequence_list)
-        print_sequence(sequence)
-
-if __name__ == "__main__":
-    main()
