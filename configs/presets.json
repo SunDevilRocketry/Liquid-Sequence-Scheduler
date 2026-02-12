@@ -1,0 +1,38 @@
+{
+    "hardware":{
+        "solenoids":[
+            "ox_press",
+            "fuel_press",
+            "ox_tank",
+            "fuel_tank",
+            "ox_purge",
+            "fuel_purge"],
+        "valves":[
+            "ox_valve",
+            "fuel_valve"],
+        "sensors":[
+            "pt_ox_tank",
+            "pt_fuel_tank",
+            "pt_chamber",
+            "tt_chamber"],
+        "ignition":[
+            "spark_plug",
+            "igniter_enable"]},
+    "commands":[
+        "ignite_sequence",
+        "abort_sequence",
+        "pre_fire_purge",
+        "fill_and_chill",
+        "enter_standby",
+        "start_hotfire",
+        "stop_hotfire",
+        "stop_purge",
+        "lox_purge_only",
+        "request_telemetry",
+        "start_datalog",
+        "stop_datalog"],
+    "allowed_states":[
+        "on","off"]}
+
+
+
