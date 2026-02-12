@@ -1,5 +1,5 @@
-from src.liquid_sequence_scheduler.classes import Hardware, Command, SequenceLine, SyntaxCheck, SequenceNode
-from src.liquid_sequence_scheduler.presets import engine_hardware, engine_commands, allowed_on_off
+from liquid_sequence_scheduler.classes import Hardware, Command, SequenceLine, SyntaxCheck, SequenceNode
+from liquid_sequence_scheduler.presets import engine_hardware, engine_commands, allowed_on_off
 from typing import List
 
 # Syntax error function for parse_CSV() can use to throw syntax errors

@@ -1,7 +1,7 @@
 import logging
 import serial
 
-from src.liquid_sequence_scheduler import serializing
+from liquid_sequence_scheduler import serializing
 
 def receive_serial_nodes(port: str, num_nodes: int):
     rcv_logger = logging.getLogger("serial.rcv")

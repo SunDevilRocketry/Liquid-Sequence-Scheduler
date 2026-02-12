@@ -3,8 +3,8 @@ import zlib
 from dataclasses import dataclass, field
 from typing import List
 
-from src.liquid_sequence_scheduler.classes import SequenceNode, Hardware, Command
-from src.liquid_sequence_scheduler.presets import engine_hardware
+from liquid_sequence_scheduler.classes import SequenceNode, Hardware, Command
+from liquid_sequence_scheduler.presets import engine_hardware
 
 @dataclass(frozen=True)
 class SerialNode:
